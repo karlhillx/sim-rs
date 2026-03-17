@@ -35,9 +35,9 @@ async fn main() -> anyhow::Result<()> {
 
     // 2. Load and parse satellite configurations
     let config_file = File::open(&args.config)
-        .map_err(|e| SimError::ConfigReadError(e))?;
+        .map_err(SimError::ConfigReadError)?;
     let satellite_configs: Vec<SatelliteConfig> = serde_yaml::from_reader(config_file)
-        .map_err(|e| SimError::ConfigParseError(e))?;
+        .map_err(SimError::ConfigParseError)?;
 
     info!("📡 Loaded {} satellite profiles from {}", satellite_configs.len(), args.config.display());
 
