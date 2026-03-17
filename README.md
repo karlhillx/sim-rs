@@ -52,7 +52,3 @@ cargo test
 - [ ] **Orbital Physics**: Integrate simplified orbital mechanics for realistic lat/lon/alt drift.
 - [ ] **Protobuf Ingestion**: Support for high-efficiency binary telemetry formats.
 - [ ] **Web Dashboard**: A real-time local dashboard to view simulated satellite positions.
-
----
-
-*Build by Mara for Karl Hill.*
