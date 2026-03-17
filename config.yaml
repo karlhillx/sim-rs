@@ -1,0 +1,23 @@
+- source_id: SAT-01
+  instrument_id: GPS-01
+  frequency: 1.0
+  initial_lat: 45.0
+  initial_lon: -75.0
+  drift_lat: 0.05
+  drift_lon: 0.1
+
+- source_id: SAT-02
+  instrument_id: RADAR-X
+  frequency: 2.5
+  initial_lat: -10.0
+  initial_lon: 120.0
+  drift_lat: -0.02
+  drift_lon: -0.08
+
+- source_id: SAT-ALPHA
+  instrument_id: OPTICAL-P
+  frequency: 0.5
+  initial_lat: 0.0
+  initial_lon: 0.0
+  drift_lat: 0.1
+  drift_lon: 0.05

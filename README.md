@@ -1,16 +1,19 @@
-# Sim (Telemetry Simulator)
+# Sim (Mission Simulator)
 
 A high-performance satellite-orbit and telemetry simulator in Rust, designed for mission-critical telemetry load testing and local development.
 
-## Why Rust?
+## 🚀 Improvements (V2)
 
-Following the **Drift (Telemetry Sink)** design, **Sim-rs** is a lightweight, zero-cost abstraction for simulating high-frequency telemetry streams. Perfect for testing your aerospace mission-simulation pipelines without the overhead of heavy-duty simulators.
+- **Multi-Source Simulation**: Support for multiple satellites running concurrently using `tokio` tasks.
+- **YAML Configuration**: Define satellite profiles (frequency, initial position, drift) in `config.yaml`.
+- **Simplified Orbital Drift**: Moves satellites across latitude/longitude over time instead of generating random noise.
+- **Improved Logging**: Detailed, per-satellite tracing to monitor ingestion health.
 
 ## Core Pillars
 
 - **Zero Overhead**: Minimal memory footprint, allowing thousands of simulated sources on a single machine.
 - **Async First**: Built on `tokio` and `reqwest` for non-blocking, reliable packet transmission.
-- **Configurable**: Easily adjust frequency, target endpoints, and source identities.
+- **Scalable**: Concurrent execution of satellite profiles defined in a central configuration.
 
 ## Getting Started
 
@@ -21,22 +24,33 @@ Following the **Drift (Telemetry Sink)** design, **Sim-rs** is a lightweight, ze
 ### Running Locally
 
 ```bash
-cargo run -- --endpoint http://127.0.0.1:3030/telemetry --frequency 2.0
+cargo run -- --config config.yaml --endpoint http://127.0.0.1:3030/telemetry
 ```
 
-### Options
+### Configuration (config.yaml)
+
+```yaml
+- source_id: SAT-01
+  instrument_id: GPS-01
+  frequency: 1.0        # Packets per second (Hz)
+  initial_lat: 45.0
+  initial_lon: -75.0
+  drift_lat: 0.05       # Degrees per second
+  drift_lon: 0.1
+```
+
+## Options
 
 | Option | Shorthand | Default | Description |
 |--------|-----------|---------|-------------|
 | `--endpoint` | `-e` | `http://127.0.0.1:3030/telemetry` | Target ingestion endpoint. |
-| `--frequency` | `-f` | `1.0` | Packets per second (Hz). |
-| `--source_id` | `-s` | `SAT-01` | Simulated source identifier. |
+| `--config` | `-c` | `config.yaml` | Path to satellite configuration file. |
 
 ## Future Roadmap
 
 - [ ] **Orbital Physics**: Integrate simplified orbital mechanics for realistic lat/lon/alt drift.
 - [ ] **Protobuf Ingestion**: Support for high-efficiency binary telemetry formats.
-- [ ] **Multi-Instrument Simulation**: Define instrument specific profiles (radar, optical, sensors).
+- [ ] **Web Dashboard**: A real-time local dashboard to view simulated satellite positions.
 
 ---
 
