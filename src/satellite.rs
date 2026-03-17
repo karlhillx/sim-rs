@@ -1,6 +1,6 @@
 use crate::models::{SatelliteConfig, TelemetryPacket};
 use chrono::Utc;
-use rand::{Rng, SeedableRng, rngs::StdRng};
+use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::time::Duration;
 use tracing::{error, info, instrument};
 
@@ -30,7 +30,8 @@ impl SatelliteSimulator {
     /// Runs until the tokio task is cancelled.
     #[instrument(skip(self), fields(source_id = %self.config.source_id))]
     pub async fn run(mut self, endpoint: String) {
-        let mut interval = tokio::time::interval(Duration::from_secs_f64(1.0 / self.config.frequency));
+        let mut interval =
+            tokio::time::interval(Duration::from_secs_f64(1.0 / self.config.frequency));
         let mut rng = StdRng::from_entropy();
 
         info!("Starting simulation thread");
