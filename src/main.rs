@@ -1,18 +1,22 @@
-mod satellite;
-
 use clap::Parser;
-use satellite::{SatelliteConfig, SatelliteSimulator};
 use std::fs::File;
 use std::path::PathBuf;
-use tracing::{info, Level};
+use tokio::signal;
+use tracing::{error, info, Level};
 use tracing_subscriber::FmtSubscriber;
+
+use sim_rs::error::SimError;
+use sim_rs::models::SatelliteConfig;
+use sim_rs::satellite::SatelliteSimulator;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
+    /// Ingestion endpoint for telemetry data
     #[arg(short, long, default_value = "http://127.0.0.1:3030/telemetry")]
     endpoint: String,
 
+    /// Path to YAML configuration file
     #[arg(short, long, default_value = "config.yaml")]
     config: PathBuf,
 }
@@ -21,35 +25,43 @@ struct Args {
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
+    // 1. Initialize modern structured logging
     let subscriber = FmtSubscriber::builder()
         .with_max_level(Level::INFO)
         .finish();
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
-    info!("Initializing sim-rs mission simulator...");
-    info!("Targeting ingestion endpoint: {}", args.endpoint);
+    info!("🚀 sim-rs: Initializing high-speed mission simulator...");
 
-    // 1. Load satellite configurations
-    let config_file = File::open(&args.config)?;
-    let satellite_configs: Vec<SatelliteConfig> = serde_yaml::from_reader(config_file)?;
+    // 2. Load and parse satellite configurations
+    let config_file = File::open(&args.config)
+        .map_err(|e| SimError::ConfigReadError(e))?;
+    let satellite_configs: Vec<SatelliteConfig> = serde_yaml::from_reader(config_file)
+        .map_err(|e| SimError::ConfigParseError(e))?;
 
-    info!("Loaded {} satellite profiles from {}", satellite_configs.len(), args.config.display());
+    info!("📡 Loaded {} satellite profiles from {}", satellite_configs.len(), args.config.display());
 
-    // 2. Spawn simulation tasks for each satellite
-    let mut handles = Vec::new();
+    // 3. Spawn simulation tasks
+    let mut tasks = Vec::new();
     for config in satellite_configs {
         let endpoint = args.endpoint.clone();
         let sim = SatelliteSimulator::new(config);
         
-        let handle = tokio::spawn(async move {
+        let task = tokio::spawn(async move {
             sim.run(endpoint).await;
         });
-        handles.push(handle);
+        tasks.push(task);
     }
 
-    // 3. Wait for all tasks to complete (they won't unless there's an error)
-    for handle in handles {
-        let _ = handle.await;
+    // 4. Graceful shutdown handler
+    info!("🛰️ Simulation active. Press Ctrl+C to stop.");
+    match signal::ctrl_c().await {
+        Ok(()) => {
+            info!("🛑 Shutdown signal received. Terminating all simulation tasks...");
+        }
+        Err(err) => {
+            error!("❌ Unable to listen for shutdown signal: {}", err);
+        }
     }
 
     Ok(())

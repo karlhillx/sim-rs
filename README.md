@@ -2,12 +2,14 @@
 
 A high-performance satellite-orbit and telemetry simulator in Rust, designed for mission-critical telemetry load testing and local development.
 
-## 🚀 Improvements (V2)
+## 🚀 Improvements (V3 - Modern Best Practices)
 
-- **Multi-Source Simulation**: Support for multiple satellites running concurrently using `tokio` tasks.
-- **YAML Configuration**: Define satellite profiles (frequency, initial position, drift) in `config.yaml`.
-- **Simplified Orbital Drift**: Moves satellites across latitude/longitude over time instead of generating random noise.
-- **Improved Logging**: Detailed, per-satellite tracing to monitor ingestion health.
+- **Crate Restructuring**: Separated concerns into a library (`lib.rs`) and a binary (`main.rs`), allowing for better testing and reuse.
+- **Robust Error Handling**: Integrated `thiserror` for library-level error definitions and `anyhow` for binary-level error management.
+- **Unit Testing**: Included unit tests for core logic (orbital drift, latitude/longitude wrapping, and battery cycles).
+- **Graceful Shutdown**: Added a `SIGINT` (Ctrl+C) handler for clean task termination.
+- **GitHub Actions**: Integrated CI workflow for automated build, test, and clippy checks.
+- **Structured Telemetry**: Enforced strongly-typed telemetry packets with UUIDv4 identifiers.
 
 ## Core Pillars
 
@@ -27,6 +29,12 @@ A high-performance satellite-orbit and telemetry simulator in Rust, designed for
 cargo run -- --config config.yaml --endpoint http://127.0.0.1:3030/telemetry
 ```
 
+### Running Tests
+
+```bash
+cargo test
+```
+
 ### Configuration (config.yaml)
 
 ```yaml
@@ -38,13 +46,6 @@ cargo run -- --config config.yaml --endpoint http://127.0.0.1:3030/telemetry
   drift_lat: 0.05       # Degrees per second
   drift_lon: 0.1
 ```
-
-## Options
-
-| Option | Shorthand | Default | Description |
-|--------|-----------|---------|-------------|
-| `--endpoint` | `-e` | `http://127.0.0.1:3030/telemetry` | Target ingestion endpoint. |
-| `--config` | `-c` | `config.yaml` | Path to satellite configuration file. |
 
 ## Future Roadmap
 
