@@ -19,6 +19,14 @@ struct Args {
     /// Path to YAML configuration file
     #[arg(short, long, default_value = "config.yaml")]
     config: PathBuf,
+
+    /// Dry run: print telemetry to console instead of POSTing
+    #[arg(long, default_value_t = false)]
+    dry_run: bool,
+
+    /// Duration in seconds to run the simulation (optional)
+    #[arg(short, long)]
+    duration: Option<u64>,
 }
 
 #[tokio::main]
@@ -45,7 +53,7 @@ async fn main() -> anyhow::Result<()> {
     let mut tasks = Vec::new();
     for config in satellite_configs {
         let endpoint = args.endpoint.clone();
-        let sim = SatelliteSimulator::new(config);
+        let sim = SatelliteSimulator::new(config, args.dry_run);
         
         let task = tokio::spawn(async move {
             sim.run(endpoint).await;
@@ -53,14 +61,28 @@ async fn main() -> anyhow::Result<()> {
         tasks.push(task);
     }
 
+    info!("⚡ Parallelism: {} tasks spawned efficiently.", tasks.len());
+
     // 4. Graceful shutdown handler
-    info!("🛰️ Simulation active. Press Ctrl+C to stop.");
-    match signal::ctrl_c().await {
-        Ok(()) => {
-            info!("🛑 Shutdown signal received. Terminating all simulation tasks...");
+    if let Some(duration) = args.duration {
+        info!("⏳ Simulation scheduled to run for {} seconds...", duration);
+        tokio::select! {
+            _ = tokio::time::sleep(std::time::Duration::from_secs(duration)) => {
+                info!("🏁 Duration reached. Shutting down...");
+            }
+            _ = signal::ctrl_c() => {
+                info!("🛑 Manual interrupt received. Shutting down...");
+            }
         }
-        Err(err) => {
-            error!("❌ Unable to listen for shutdown signal: {}", err);
+    } else {
+        info!("🛰️ Simulation active. Press Ctrl+C to stop.");
+        match signal::ctrl_c().await {
+            Ok(()) => {
+                info!("🛑 Shutdown signal received. Terminating all simulation tasks...");
+            }
+            Err(err) => {
+                error!("❌ Unable to listen for shutdown signal: {}", err);
+            }
         }
     }
 

@@ -9,8 +9,12 @@ pub struct SatelliteConfig {
     pub frequency: f64, // Hz
     pub initial_lat: f64,
     pub initial_lon: f64,
+    pub initial_alt: f64,
+    pub initial_velocity: f64,
     pub drift_lat: f64, // degree per second
     pub drift_lon: f64, // degree per second
+    pub drift_alt: f64, // meters per second
+    pub drift_velocity: f64, // meters per second per second
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -1,54 +1,54 @@
-# Sim (Mission Simulator)
+# sim-rs: High-Performance Satellite Mission Simulator
 
-A high-performance satellite-orbit and telemetry simulator in Rust, designed for mission-critical telemetry load testing and local development.
+`sim-rs` is a high-speed, scale-testing engine designed for simulating satellite orbital dynamics and telemetry streams. It is the companion simulator to `drift-rs`, used for validating telemetry ingestion pipelines, dashboard resilience, and mission control performance under load.
 
-## 🚀 Improvements (V3 - Modern Best Practices)
+## Core Capabilities
 
-- **Crate Restructuring**: Separated concerns into a library (`lib.rs`) and a binary (`main.rs`), allowing for better testing and reuse.
-- **Robust Error Handling**: Integrated `thiserror` for library-level error definitions and `anyhow` for binary-level error management.
-- **Unit Testing**: Included unit tests for core logic (orbital drift, latitude/longitude wrapping, and battery cycles).
-- **Graceful Shutdown**: Added a `SIGINT` (Ctrl+C) handler for clean task termination.
-- **GitHub Actions**: Integrated CI workflow for automated build, test, and clippy checks.
-- **Structured Telemetry**: Enforced strongly-typed telemetry packets with UUIDv4 identifiers.
+- **Physics-Based Drift:** Realistic orbital simulation including altitude decay, velocity changes, and wrap-around spherical coordinates.
+- **Massive Parallelism:** Built on `tokio`, capable of simulating thousands of independent satellite nodes on a single machine.
+- **Resilient Telemetry:** Integrated retry mechanisms with exponential backoff to handle intermittent network failures.
+- **High-Speed Execution:** Written in Rust for maximum efficiency and low resource footprint.
 
-## Core Pillars
+## Quick Start
 
-- **Zero Overhead**: Minimal memory footprint, allowing thousands of simulated sources on a single machine.
-- **Async First**: Built on `tokio` and `reqwest` for non-blocking, reliable packet transmission.
-- **Scalable**: Concurrent execution of satellite profiles defined in a central configuration.
+### Simulation Modes
 
-## Getting Started
-
-### Prerequisites
-
-- [Rust & Cargo](https://rustup.rs/) (v1.60+)
-
-### Running Locally
-
+**1. Scaled Load Testing**
+Simulate real-world conditions by POSTing telemetry to a target endpoint:
 ```bash
-cargo run -- --config config.yaml --endpoint http://127.0.0.1:3030/telemetry
+cargo run -- --endpoint http://your-api.com/telemetry
 ```
 
-### Running Tests
-
+**2. Dry Run / Console Debugging**
+Validate your configuration and state drift without network overhead:
 ```bash
-cargo test
+cargo run -- --dry-run
 ```
 
-### Configuration (config.yaml)
+**3. Scheduled Mission Simulation**
+Run the simulation for a specific duration:
+```bash
+cargo run -- --duration 300 --dry-run
+```
+
+## Configuration
+
+Satellite profiles are managed in `config.yaml`. Example:
 
 ```yaml
-- source_id: SAT-01
-  instrument_id: GPS-01
-  frequency: 1.0        # Packets per second (Hz)
-  initial_lat: 45.0
-  initial_lon: -75.0
-  drift_lat: 0.05       # Degrees per second
+- source_id: ISS-SIM
+  instrument_id: ENV-SENSE-1
+  frequency: 1.0        # Hz
+  initial_lat: 51.6
+  initial_lon: 0.0
+  initial_alt: 408000.0 # Meters
+  initial_velocity: 7660.0 # m/s
+  drift_lat: 0.05
   drift_lon: 0.1
+  drift_alt: -0.1
+  drift_velocity: 0.01
 ```
 
-## Future Roadmap
+## Resilience
 
-- [ ] **Orbital Physics**: Integrate simplified orbital mechanics for realistic lat/lon/alt drift.
-- [ ] **Protobuf Ingestion**: Support for high-efficiency binary telemetry formats.
-- [ ] **Web Dashboard**: A real-time local dashboard to view simulated satellite positions.
+The simulator uses `reqwest-retry` to ensure that telemetry packets are delivered even during temporary network outages. It implements an exponential backoff strategy (up to 3 retries) for all HTTP POST operations.

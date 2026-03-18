@@ -1,23 +1,35 @@
-- source_id: SAT-01
-  instrument_id: GPS-01
+- source_id: ISS-SIM
+  instrument_id: ENV-SENSE-1
   frequency: 1.0
-  initial_lat: 45.0
-  initial_lon: -75.0
+  initial_lat: 51.6
+  initial_lon: 0.0
+  initial_alt: 408000.0
+  initial_velocity: 7660.0
   drift_lat: 0.05
   drift_lon: 0.1
+  drift_alt: -0.1
+  drift_velocity: 0.01
 
-- source_id: SAT-02
-  instrument_id: RADAR-X
-  frequency: 2.5
-  initial_lat: -10.0
-  initial_lon: 120.0
-  drift_lat: -0.02
-  drift_lon: -0.08
-
-- source_id: SAT-ALPHA
-  instrument_id: OPTICAL-P
+- source_id: LANDSAT-9
+  instrument_id: OLI-2
   frequency: 0.5
   initial_lat: 0.0
-  initial_lon: 0.0
+  initial_lon: -120.0
+  initial_alt: 705000.0
+  initial_velocity: 7500.0
   drift_lat: 0.1
   drift_lon: 0.05
+  drift_alt: 0.0
+  drift_velocity: 0.0
+
+- source_id: STARLINK-V2-MINI
+  instrument_id: COMM-ARRAY
+  frequency: 5.0
+  initial_lat: 42.0
+  initial_lon: -80.0
+  initial_alt: 550000.0
+  initial_velocity: 7590.0
+  drift_lat: -0.02
+  drift_lon: 0.15
+  drift_alt: 0.05
+  drift_velocity: 0.02
